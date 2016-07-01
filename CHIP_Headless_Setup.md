@@ -2,6 +2,7 @@
 by Johnny Sprada
 
 This guide assumes that your C.H.I.P. has been imaged with one of the Debian based operating systems.
+
 If you cannot boot your device, see the official forums to learn how to reimage yours.
 
 If there's demand for it, I would be happy to create a guide on how to re-flash the device.
@@ -24,9 +25,17 @@ If there's demand for it, I would be happy to create a guide on how to re-flash 
 
 
 ### Connect USB -> Serial Converter to Host PC
-Plug USB into socket, then run `screen` to connect to C.H.I.P.  serial interface.
+Plug USB into socket, then run `screen` to connect to C.H.I.P.'s serial interface.
 
-    $ sudo screen /dev/ttyUSB0 115200
+Find your USB serial port
+
+```
+$ ls /dev/tty*usb*
+```
+
+Use the listed port. In this case ```/dev/tty.usbmodem1421```
+
+    $ sudo screen /dev/tty.usbmodem1421 115200
 
 
 ### Power up C.H.I.P.
@@ -39,36 +48,42 @@ You should see the boot sequence as Linux loads.
     Login: root
     Password: chip
 
-
-## Check IP address for `wlan0`
-
-    $ ip address
-
-
 ## Setup wifi to auto connect to your network
 
-Edit `/etc/network/interfaces` file
+### List available Wi-Fi networks
 
-    # nano /etc/network/interfaces
+```
+$ nmcli device wifi list
+```
 
-Comment out the line beginning with 'source...' by prepending a #
+The output will list available access points.
 
-    #source-directory /etc/network/interfaces.d
+### Connect to a network with password
 
-Add the following lines:
+```
+$ sudo nmcli device wifi connect '(your wifi network name/SSID)' password '(your wifi password)' ifname wlan0
+```
 
-    auto wlan0
-    iface wlan0 inet dhcp
-        wpa-ssid <your_ssid>
-        wpa-psk <your_network_password>
+### Test your Connection
 
+Verify it:
 
-Save the file and restart the NetworkManager service
+```
+$ nmcli device status
+```
 
-    # systemctl restart NetworkManager
+OR
 
-Check your IP address again:
+```
+$ nmcli connection show --active
+```
 
+Test it by pinging Google’s DNS server at the IP address 8.8.8.8
+```
+$ ping -c 4 8.8.8.8
+```
+
+Find your IP address:
 
     # ip address
 
@@ -88,8 +103,15 @@ Now is a great time to update your system:
 
     # apt-get update
 
-Once the update process has completed, you may now disconnect the  USB -> serial converter and SSH into your device from another client on your network.
+Quit your ```screen``` session once the update process has completed.
+* Press ```^a``` to prompt screen you're about to enter a command.
+* Type ```:quit``` at the bottom - like in vi.
 
+Then disconnect the  USB -> serial converter and SSH into your device from another client on your network.
+
+### More info & troubleshooting
+
+Check [C.H.I.P.'s official WIFI connection documentation](http://docs.getchip.com/chip.html#wifi-connection) for more setup + troubleshooting tips.
 
 ## Connect to C.H.I.P. via SSH
 
