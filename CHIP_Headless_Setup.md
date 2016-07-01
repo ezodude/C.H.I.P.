@@ -48,6 +48,12 @@ You should see the boot sequence as Linux loads.
     Login: root
     Password: chip
 
+Then update ```$TERM```
+
+```
+$ export TERM=ansi
+```
+
 ## Setup wifi to auto connect to your network
 
 ### List available Wi-Fi networks
